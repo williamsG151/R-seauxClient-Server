@@ -15,6 +15,7 @@ public class ApplicationLayer implements LayersCommunication {
     }
 
 
+
     @Override
     public void send(byte[] buf) throws IOException {
         //On convertie le tableau de byte en string
@@ -55,6 +56,24 @@ public class ApplicationLayer implements LayersCommunication {
     @Override
     public void receive(byte[] buf) {
 
+    }
+
+    public static byte[] getIPAdress(byte[] buf){
+        return Arrays.copyOfRange(buf,0,4);
+    }
+
+    public static int getFileNameLength(byte[] buf){
+        return Byte.valueOf(buf[4]).intValue();
+    }
+
+    public static byte[] getFileName(byte[] buf){
+        int fileNameLength = getFileNameLength(buf);
+        return Arrays.copyOfRange(buf,5,5+fileNameLength);
+    }
+
+    public static byte[] getData(byte[] buf) {
+        int fileNameLength = getFileNameLength(buf);
+        return Arrays.copyOfRange(buf,5+fileNameLength,buf.length);
     }
 
 }
