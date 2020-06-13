@@ -1,7 +1,9 @@
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 public interface LayersCommunication {
-   void readUpward();
-    void writeUpward();
-    void readDownward();
-    void writeDownward();
+   void send(byte[] buf) throws IOException;
+    void receive(byte[] buf);
+
 
 }
