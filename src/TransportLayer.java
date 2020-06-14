@@ -5,19 +5,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TransportLayer implements LayersCommunication {
-    LayersCommunication downLayer = new LinkLayer(this);
+    LayersCommunication downLayer;
+    LayersCommunication upwardLayer;
     private List<byte[]> packets = new ArrayList<>();
     private static final int PACKET_NUMBER_SIZE = 5;
     private static final int MAX_PACKET_SIZE = 200;
-    public static final int PORT = 25000;
 
     public TransportLayer() {
 
+    public TransportLayer(int myPort, LayersCommunication upwardLayer) {
+        this.upwardLayer= upwardLayer;
+        downLayer = new LinkLayer(myPort,this);
     }
 
-
     @Override
-    public void send(String IPdestinataire,byte[] buf) throws IOException {
+    public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException {
 
 
 
@@ -37,9 +39,9 @@ public class TransportLayer implements LayersCommunication {
 
             //Création du body
             if (i==quantity){
-                body = Arrays.copyOfRange(buf,(i)*MAX_PACKET_SIZE, buf.length);
+                body = Arrays.copyOfRange(buf,i*MAX_PACKET_SIZE, buf.length);
             }else{
-                body = Arrays.copyOfRange(buf,(i)*MAX_PACKET_SIZE, (i)*MAX_PACKET_SIZE+MAX_PACKET_SIZE);
+                body = Arrays.copyOfRange(buf,i*MAX_PACKET_SIZE, (i-1)*MAX_PACKET_SIZE+MAX_PACKET_SIZE);
             }
 
             //On join les deux ensemble et on les stock dans la liste
@@ -49,14 +51,13 @@ public class TransportLayer implements LayersCommunication {
             packets.add(allBytes);
         }
         for (byte[] bytes:packets) {
-            System.out.println(bytes[0]);
-           downLayer.send(IPdestinataire,bytes);
+           downLayer.send(portDestinataire, IPdestinataire,bytes);
         }
     }
 
     @Override
-    public void receive(byte[] buf, byte[] IPsource) {
-        
+    public void receive(int portSource, byte[] IPsource,byte[] buf) {
+
     }
 
     private String numberToString(int number, int stringLength){
@@ -66,4 +67,10 @@ public class TransportLayer implements LayersCommunication {
         }
         return s;
     }
+
+    @Override
+    public void listen() throws IOException {
+        downLayer.listen();
+    }
+
 }

@@ -11,12 +11,16 @@ import java.util.*;
 
 public class ApplicationLayer implements LayersCommunication {
     LayersCommunication downLayer;
-    public ApplicationLayer() {
-        downLayer= new TransportLayer();
+
+    public ApplicationLayer(int myPort) {
+        downLayer= new TransportLayer( myPort,this);
     }
 
     @Override
-    public void send(String IPdestinataire,byte[] buf) throws IOException {
+    public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException {
+
+
+
         //On convertie le tableau de byte en string
         String filePath = new String(buf);
 
@@ -36,21 +40,11 @@ public class ApplicationLayer implements LayersCommunication {
         buff.put(nameLength).put(name).put(data);
 
         //Envoie des bytes en la couche en dessous
-        downLayer.send(IPdestinataire,allByteArray);
+        downLayer.send(portDestinataire,IPdestinataire,allByteArray);
     }
 
     @Override
-    public void receive(byte[] buf, byte[] IPsource) {
-        byte[] fileName = getFileName(buf);
-        byte[] fileData = getData(buf);
-        String name = new String(fileName, StandardCharsets.UTF_8);
-        String data = new String(fileData, StandardCharsets.UTF_8);
-        //String name1 = "one-liners1.txt";
-        try {
-            File myFile = new File(name);
-            //myFile.createNewFile();
-            Path path = Paths.get(name);
-            Files.write(path, Collections.singleton(data));
+    public void receive(int portSource, byte[] IPsource,byte[] buf) {
 
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -59,6 +53,11 @@ public class ApplicationLayer implements LayersCommunication {
 
 
 
+    }
+
+    @Override
+    public void listen() throws IOException {
+        downLayer.listen();
     }
 
 
