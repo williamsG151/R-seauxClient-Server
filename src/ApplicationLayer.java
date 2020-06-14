@@ -10,14 +10,17 @@ import java.util.List;
 public class ApplicationLayer implements LayersCommunication {
     LayersCommunication downLayer;
 
-    public ApplicationLayer() {
-        downLayer= new TransportLayer();
+    public ApplicationLayer(int myPort) {
+        downLayer= new TransportLayer( myPort,this);
     }
 
 
 
     @Override
-    public void send(String IPdestinataire,byte[] buf) throws IOException {
+    public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException {
+
+
+
         //On convertie le tableau de byte en string
         String filePath = new String(buf);
 
@@ -37,12 +40,17 @@ public class ApplicationLayer implements LayersCommunication {
 
 
         //Envoie des bytes en la couche en dessous
-        downLayer.send(IPdestinataire,allByteArray);
+        downLayer.send(portDestinataire,IPdestinataire,allByteArray);
     }
 
     @Override
-    public void receive(byte[] buf) {
+    public void receive(int portSource, byte[] IPsource,byte[] buf) {
 
+    }
+
+    @Override
+    public void listen() throws IOException {
+        downLayer.listen();
     }
 
 
