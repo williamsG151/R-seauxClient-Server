@@ -19,8 +19,6 @@ public class ApplicationLayer implements LayersCommunication {
     @Override
     public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException {
 
-
-
         //On convertie le tableau de byte en string
         String filePath = new String(buf);
 
@@ -43,16 +41,17 @@ public class ApplicationLayer implements LayersCommunication {
         downLayer.send(portDestinataire,IPdestinataire,allByteArray);
     }
 
+
     @Override
     public void receive(int portSource, byte[] IPsource,byte[] buf) {
-
+        System.out.println("Receive app");
         byte[] fileName = getFileName(buf);
         byte[] fileData = getData(buf);
         String name = new String(fileName, StandardCharsets.UTF_8);
         String data = new String(fileData, StandardCharsets.UTF_8);
-        //String name1 = "one-liners1.txt";
+        //name = "/allo/"+name;
+         name = "one-liners1.txt";
         try {
-            File myFile = new File(name);
             Path path = Paths.get(name);
             Files.write(path, Collections.singleton(data));
         } catch (IOException e) {

@@ -45,6 +45,7 @@ public class LinkLayer implements LayersCommunication {
 
     @Override
     public void receive(int portSource, byte[] IPsource, byte[] buf) {
+        System.out.println("Receive link");
         byte crcByte = buf[0];
         byte[] data = Arrays.copyOfRange(buf,HEADER_LENGTH,buf.length);
         byte crc=   CRC32.calculateCRC32(data);
