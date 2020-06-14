@@ -28,6 +28,7 @@ public class LinkLayer implements LayersCommunication {
         }
     }
 
+
     @Override
     public void send(int portDestinataire,byte[] IPadress, byte[] buf) throws IOException {
 
