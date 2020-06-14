@@ -16,8 +16,8 @@ public class Client {
 
             System.out.println("Envoie du fichier en cours... veuillez patienter");
             //envoie....
-            byte[] buf = (nomFichier + "\n" + adresse).getBytes();
-            app.send(buf);
+            byte[] buf = (nomFichier).getBytes();
+            app.send(adresse,buf);
             System.out.println("Envoie du fichier terminé, voulez vous en envoyer un autre? [Y/N]");
             envoie = br.readLine();
         }

@@ -17,40 +17,27 @@ public class ApplicationLayer implements LayersCommunication {
 
 
     @Override
-    public void send(byte[] buf) throws IOException {
+    public void send(String IPdestinataire,byte[] buf) throws IOException {
         //On convertie le tableau de byte en string
-        String string = new String(buf);
-        //On sépare les deux lignes de la string
-        String[] lines = string.split("\n");
-
-
-
-        //On sépare les chiffres de l'adresse
-        String[] adressString = lines[1].split("\\.");
-
-        //On stock les chiffres de l'adresse dans un array de 4 bytes
-        byte[] adress = new byte[4];
-        for(int i = 0;i<4; i++){
-            adress[i] = Integer.valueOf(adressString[i]).byteValue();
-        }
+        String filePath = new String(buf);
 
         //Extraction du nom du fichier et de sa longueur
-        File file = new File(lines[0]);
+        File file = new File(filePath);
         String fileName = file.getName();
         byte[] name = fileName.getBytes();
         byte nameLength = Integer.valueOf(name.length).byteValue();
 
-        //On stock les bytes du fichier dont le nom est la première ligne de la string
+        //On stock les bytes du fichier
         byte[] data = Files.readAllBytes(Paths.get(file.toURI()));
 
         //Combinaison des arrays
-        byte[] allByteArray = new byte[adress.length+1+name.length+data.length];
+        byte[] allByteArray = new byte[1+name.length+data.length];
         ByteBuffer buff = ByteBuffer.wrap(allByteArray);
-        buff.put(adress).put(nameLength).put(name).put(data);
+        buff.put(nameLength).put(name).put(data);
 
 
         //Envoie des bytes en la couche en dessous
-        downLayer.send(allByteArray);
+        downLayer.send(IPdestinataire,allByteArray);
     }
 
     @Override
@@ -58,22 +45,19 @@ public class ApplicationLayer implements LayersCommunication {
 
     }
 
-    public static byte[] getIPAdress(byte[] buf){
-        return Arrays.copyOfRange(buf,0,4);
+
+    private static int getFileNameLength(byte[] buf){
+        return Byte.valueOf(buf[0]).intValue();
     }
 
-    public static int getFileNameLength(byte[] buf){
-        return Byte.valueOf(buf[4]).intValue();
-    }
-
-    public static byte[] getFileName(byte[] buf){
+    private static byte[] getFileName(byte[] buf){
         int fileNameLength = getFileNameLength(buf);
-        return Arrays.copyOfRange(buf,5,5+fileNameLength);
+        return Arrays.copyOfRange(buf,1,1+fileNameLength);
     }
 
-    public static byte[] getData(byte[] buf) {
+    private static byte[] getData(byte[] buf) {
         int fileNameLength = getFileNameLength(buf);
-        return Arrays.copyOfRange(buf,5+fileNameLength,buf.length);
+        return Arrays.copyOfRange(buf,1+fileNameLength,buf.length);
     }
 
 }
