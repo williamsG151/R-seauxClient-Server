@@ -13,7 +13,7 @@ public class ApplicationLayer implements LayersCommunication {
     LayersCommunication downLayer;
 
     public ApplicationLayer(int myPort) {
-        downLayer= new TransportLayer( myPort,this);
+        downLayer= new TransportLayer( myPort, this);
     }
 
     @Override
@@ -46,6 +46,15 @@ public class ApplicationLayer implements LayersCommunication {
     @Override
     public void receive(int portSource, byte[] IPsource,byte[] buf) {
 
+        byte[] fileName = getFileName(buf);
+        byte[] fileData = getData(buf);
+        String name = new String(fileName, StandardCharsets.UTF_8);
+        String data = new String(fileData, StandardCharsets.UTF_8);
+        //String name1 = "one-liners1.txt";
+        try {
+            File myFile = new File(name);
+            Path path = Paths.get(name);
+            Files.write(path, Collections.singleton(data));
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

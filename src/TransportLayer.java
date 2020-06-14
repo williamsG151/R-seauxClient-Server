@@ -11,7 +11,6 @@ public class TransportLayer implements LayersCommunication {
     private static final int PACKET_NUMBER_SIZE = 5;
     private static final int MAX_PACKET_SIZE = 200;
 
-    public TransportLayer() {
 
     public TransportLayer(int myPort, LayersCommunication upwardLayer) {
         this.upwardLayer= upwardLayer;
