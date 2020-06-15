@@ -15,7 +15,7 @@ public class Server  {
 
 
     public static void main(String[] args)  throws IOException {
-        ApplicationLayer app = new ApplicationLayer(SERVER_PORT);
+        ApplicationLayer app = new ApplicationLayer(SERVER_PORT,Boolean.parseBoolean(args[0]));
     while(run) {
         app.listen();
     }

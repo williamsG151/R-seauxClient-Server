@@ -14,7 +14,7 @@ public class Client {
      *
      */
     public static void main(String[] args) throws IOException {
-        ApplicationLayer app = new ApplicationLayer(CLIENT_PORT);
+        ApplicationLayer app = new ApplicationLayer(CLIENT_PORT, Boolean.parseBoolean(args[0]));
         String envoie = "Y";
         while (envoie.toLowerCase().equals("y")) {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -22,7 +22,6 @@ public class Client {
             String nomFichier = br.readLine();
             System.out.println("entrez l'adresse du destinataire: ");
             String[] adresseStrings = br.readLine().split("\\.");
-
             System.out.println("Envoie du fichier en cours... veuillez patienter");
             //envoie....
             byte[] buf = (nomFichier).getBytes();

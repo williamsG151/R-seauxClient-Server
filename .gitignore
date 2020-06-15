@@ -4,3 +4,7 @@
 LaboS3App3.iml
 
 out/
+
+data/
+
+*.log

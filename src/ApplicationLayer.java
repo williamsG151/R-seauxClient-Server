@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 /**
@@ -18,8 +19,8 @@ import java.util.*;
 public class ApplicationLayer implements LayersCommunication {
     LayersCommunication downLayer;
 
-    public ApplicationLayer(int myPort) {
-        downLayer= new TransportLayer( myPort, this);
+    public ApplicationLayer(int myPort, boolean withErrorGenerator) {
+        downLayer= new TransportLayer( myPort,  withErrorGenerator, this);
     }
 
     /**
@@ -55,8 +56,8 @@ public class ApplicationLayer implements LayersCommunication {
         buff.put(nameLength).put(name).put(data);
 
         //Envoie des bytes en la couche en dessous
-        //downLayer.send(portDestinataire,IPdestinataire,allByteArray);
-        receive(1,allByteArray ,allByteArray);
+        downLayer.send(portDestinataire,IPdestinataire,allByteArray);
+
     }
 
     /**
@@ -74,14 +75,18 @@ public class ApplicationLayer implements LayersCommunication {
         System.out.println("Receive app");
         byte[] fileName = getFileName(buf);
         byte[] fileData = getData(buf);
-        String name = new String(fileName, StandardCharsets.UTF_8);
-        String data = new String(fileData, StandardCharsets.UTF_8);
-        //name = "/allo/"+name;
-         name = "one-liners1.txt";
+        String name = new String(fileName);
+        String data = new String(fileData);
+
         try {
-            Path path = Paths.get(name);
-            Files.write(path, Collections.singleton(data));
-            //Files.write(path, Collections.singleton(data));
+            File file = new File("data",name);
+            // if file doesnt exists, then create it
+            file.createNewFile();
+
+            FileOutputStream fileOutputStream = new FileOutputStream(file,false);
+            fileOutputStream.write(fileData);
+            fileOutputStream.close();
+
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
