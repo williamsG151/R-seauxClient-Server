@@ -132,8 +132,10 @@ public class TransportLayer implements LayersCommunication {
         }
     }
 
-
-
+    /**
+     * Assemble les tableaux de bytes en un seul
+     * @return le tableau de byte contenant l'ensemble des données
+     */
     private byte[] reconstructData(){
         byte[] totalPackets =new byte[packetLength];
         ByteBuffer bf = ByteBuffer.wrap(totalPackets);
@@ -143,6 +145,12 @@ public class TransportLayer implements LayersCommunication {
         return totalPackets;
     }
 
+    /**
+     * transforme un entier en une string d'une certaine longueur en ajoutant des zero au début au besoin
+     * @param number l'entier que l'on veut transfromer en string
+     * @param stringLength le nombre de caractère de la string souhaité
+     * @return l'entier transformé en string
+     */
     private String numberToString(int number, int stringLength){
         String s = String.valueOf(number);
         while(s.length()<stringLength){
