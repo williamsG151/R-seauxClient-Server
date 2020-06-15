@@ -8,6 +8,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * La couche application permet de convertir le fichier
+ * envoyer par le programme client en donnée qui sont
+ * transmit a la couche transport ou de transcrire le information
+ * passer par la couche transport
+ */
 
 public class ApplicationLayer implements LayersCommunication {
     LayersCommunication downLayer;
@@ -15,6 +21,17 @@ public class ApplicationLayer implements LayersCommunication {
     public ApplicationLayer(int myPort) {
         downLayer= new TransportLayer( myPort, this);
     }
+
+    /**
+     * Cette fonction permet passser le fichier reçue
+     * par le programmme client en un adress d'un buffer dans
+     * la couche inférieur(couche transport)
+     *
+     * @param portDestinataire
+     * @param IPdestinataire
+     * @param buf
+     * @throws IOException
+     */
 
     @Override
     public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException {
@@ -38,9 +55,19 @@ public class ApplicationLayer implements LayersCommunication {
         buff.put(nameLength).put(name).put(data);
 
         //Envoie des bytes en la couche en dessous
-        downLayer.send(portDestinataire,IPdestinataire,allByteArray);
+        //downLayer.send(portDestinataire,IPdestinataire,allByteArray);
+        receive(1,allByteArray ,allByteArray);
     }
 
+    /**
+     * Cette fonction receoit un arrays de byte qui est transmie
+     * par la couche inférieur (couche transport) et cette fonction a pour
+     * bus d'écrire les données reçu.
+     *
+     * @param portSource
+     * @param IPsource
+     * @param buf
+     */
 
     @Override
     public void receive(int portSource, byte[] IPsource,byte[] buf) {
@@ -54,6 +81,7 @@ public class ApplicationLayer implements LayersCommunication {
         try {
             Path path = Paths.get(name);
             Files.write(path, Collections.singleton(data));
+            //Files.write(path, Collections.singleton(data));
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

@@ -2,6 +2,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 
+/**
+ * cette classe représente le programme server
+ */
+
 public class Server  {
 
     private static final int SERVER_PORT = 25001;

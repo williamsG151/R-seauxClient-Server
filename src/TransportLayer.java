@@ -1,8 +1,19 @@
+import com.sun.net.httpserver.Headers;
+
+import java.awt.*;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+/**
+ * Cette couche permet de prendre les données envoyer
+ * de la couche application et les convertir en plusieur paquet
+ * vers la couche communication de donné et peu aussi envoyer des données
+ * vers la couche application
+ */
 
 public class TransportLayer implements LayersCommunication {
     LayersCommunication downLayer;
@@ -18,6 +29,15 @@ public class TransportLayer implements LayersCommunication {
         this.upwardLayer= upwardLayer;
         downLayer = new LinkLayer(myPort,this);
     }
+
+    /**
+     * Cette fonction prend les données trnsmie par a couche application
+     * et les transmet en paquet vers la couche liaison de données
+     * @param portDestinataire
+     * @param IPdestinataire
+     * @param buf
+     * @throws IOException
+     */
 
     @Override
     public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException {
@@ -57,6 +77,16 @@ public class TransportLayer implements LayersCommunication {
         }
     }
 
+    /**
+     * Cette fonction sert de resevoir un accuser de reception
+     * des paquet envoyer par la couche de communication des donnée
+     * et aussi si le message reçu n'est pas un accuser de réception
+     * cette fonction renvoie les paquet vers la fonction receiveDta
+     * @param portSource
+     * @param IPsource
+     * @param buf
+     */
+
     @Override
     public void receive(int portSource, byte[] IPsource,byte[] buf) {
         System.out.println("Receive trans");
@@ -66,6 +96,15 @@ public class TransportLayer implements LayersCommunication {
                 receiveData( portSource, IPsource, buf);
             }
     }
+
+    /**
+     * Cette fonction permet de prendre les paquet envoyer par la couche
+     * liaison de données et les renvoye en un array de byte bien ordonnée dans
+     * la couche suppérieur(couche application)
+     * @param portSource
+     * @param IPsource
+     * @param buf
+     */
 
     private void receiveData(int portSource, byte[] IPsource,byte[] buf){
         System.out.println("Receive data");
@@ -92,6 +131,8 @@ public class TransportLayer implements LayersCommunication {
             }
         }
     }
+
+
 
     private byte[] reconstructData(){
         byte[] totalPackets =new byte[packetLength];

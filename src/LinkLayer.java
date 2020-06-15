@@ -6,6 +6,11 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+/**
+ * cette couche permet de transmettre et de recevoir des paquet
+ * vers/du socket de Berkeley
+ */
+
 public class LinkLayer implements LayersCommunication {
 
     LayersCommunication upwardLayer;
@@ -28,6 +33,15 @@ public class LinkLayer implements LayersCommunication {
         }
     }
 
+    /**
+     * Cette fonction permet de recevoir les paquet transmie par la couche
+     * transport et les envoyer les paquet au socket de Berkeley
+     * @param portDestinataire
+     * @param IPadress
+     * @param buf
+     * @throws IOException
+     */
+
 
     @Override
     public void send(int portDestinataire,byte[] IPadress, byte[] buf) throws IOException {
@@ -42,6 +56,14 @@ public class LinkLayer implements LayersCommunication {
         DatagramPacket packet = new DatagramPacket(allBytesArray, allBytesArray.length,adress,portDestinataire);
         socket.send(packet);
     }
+
+    /**
+     * Receoit les donnée transmie par le socket de Berkeley
+     * et les transfert en paquet vers la couche de transport
+     * @param portSource
+     * @param IPsource
+     * @param buf
+     */
 
     @Override
     public void receive(int portSource, byte[] IPsource, byte[] buf) {

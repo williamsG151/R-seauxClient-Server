@@ -7,6 +7,12 @@ public class Client {
     private static final int SERVER_PORT = 25001;
     private static final int CLIENT_PORT = 25002;
 
+    /**
+     * Cette fonction permet de faire un programme client qui
+     * envoye un fichier a la couche application
+     *
+     *
+     */
     public static void main(String[] args) throws IOException {
         ApplicationLayer app = new ApplicationLayer(CLIENT_PORT);
         String envoie = "Y";
