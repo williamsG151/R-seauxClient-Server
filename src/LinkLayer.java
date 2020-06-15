@@ -50,9 +50,9 @@ public class LinkLayer implements LayersCommunication {
      * Cette fonction permet de recevoir les paquet transmie par la couche
      * transport et les envoyer les paquet au socket de Berkeley
      *
-     * @param portDestinataire
-     * @param IPadress
-     * @param buf
+     * @param portDestinataire le numéro de port du destinataire
+     * @param IPadress l'adress IP du destinataire
+     * @param buf les pacquet envoyer par la couche transport
      * @throws IOException
      */
 
@@ -69,6 +69,7 @@ public class LinkLayer implements LayersCommunication {
         byte[] allBytesArray = new byte[1 + buf.length];
         ByteBuffer bf = ByteBuffer.wrap(allBytesArray);
         bf.put(crc);
+        // generate error in the packets
         if (errorGeneratorActivated && r.nextInt() % 10 == 0) {
             byte[] newBuf = Arrays.copyOf(buf, buf.length);
             byte[] bad = "BAD".getBytes();
@@ -80,7 +81,7 @@ public class LinkLayer implements LayersCommunication {
             bf.put(buf);
         }
 
-
+        // send packet to Berkeley socket
         InetAddress adress = InetAddress.getByAddress(IPadress);
         DatagramPacket packet = new DatagramPacket(allBytesArray, allBytesArray.length, adress, portDestinataire);
         socket.send(packet);
@@ -90,9 +91,9 @@ public class LinkLayer implements LayersCommunication {
      * Receoit les donnée transmie par le socket de Berkeley
      * et les transfert en paquet vers la couche de transport
      *
-     * @param portSource
-     * @param IPsource
-     * @param buf
+     * @param portSource le numéro de port de la source
+     * @param IPsource l'adress IP de la source
+     * @param buf les paquet envoyer du socket de berkeley
      */
 
     @Override
@@ -106,6 +107,7 @@ public class LinkLayer implements LayersCommunication {
         crc32.update(data);
         byte crc = (byte) crc32.getValue();
 
+        // check if the packet is not corrupt
         if (crc == crcByte) {
             logger.log(Level.INFO,"Packet reçu du port " + portSource);
             upwardLayer.receive(portSource, IPsource, data);

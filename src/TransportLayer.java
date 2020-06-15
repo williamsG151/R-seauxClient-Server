@@ -37,9 +37,9 @@ public class TransportLayer implements LayersCommunication {
     /**
      * Cette fonction prend les données trnsmie par a couche application
      * et les transmet en paquet vers la couche liaison de données
-     * @param portDestinataire
-     * @param IPdestinataire
-     * @param buf
+     * @param portDestinataire le numéro du port du destinataire
+     * @param IPdestinataire l'adress IP ou on envoie lespacket
+     * @param buf les données transmise par la couche application
      * @throws IOException
      */
 
@@ -89,9 +89,9 @@ public class TransportLayer implements LayersCommunication {
      * des paquet envoyer par la couche de communication des donnée
      * et aussi si le message reçu n'est pas un accuser de réception
      * cette fonction renvoie les paquet vers la fonction receiveDta
-     * @param portSource
-     * @param IPsource
-     * @param buf
+     * @param portSource it is a integer that pass the number of the port that we use
+     * @param IPsource it is a byte array that pass the ip adress of the source
+     * @param buf It is a byte arrays that contain the packet send from Link Layer
      */
 
     @Override
@@ -118,6 +118,7 @@ public class TransportLayer implements LayersCommunication {
         }
     }
     private void retransmit(int destinationPort, byte[] IPDestination, int packetNumber) throws IOException {
+        // Send the paquet that have been requested
         byte[] packet=packets.get(packetNumber-1);
         ack = packetNumber-1;
         downLayer.send(destinationPort, IPDestination, packet);
@@ -130,9 +131,9 @@ public class TransportLayer implements LayersCommunication {
      * Cette fonction permet de prendre les paquet envoyer par la couche
      * liaison de données et les renvoye en un array de byte bien ordonnée dans
      * la couche suppérieur(couche application)
-     * @param portSource
-     * @param IPsource
-     * @param buf
+     * @param portSource it is a integer that pass the number of the port that we use
+     * @param IPsource it is a byte array that pass the ip adress of the source
+     * @param buf It is a byte arrays that contain the packet send from Link Layer
      */
     private void receiveData(int portSource, byte[] IPsource,byte[] buf) throws IOException {
         System.out.println("Receive data");
@@ -142,15 +143,18 @@ public class TransportLayer implements LayersCommunication {
 
             int packetNum = Integer.valueOf(new String(packetNumber));
             int packetQuantityNum = Integer.valueOf(new String(packetQuantity));
+            // check if the packet send is the one expected
             if (packetNum != ack + 1) {
-                //plz send packet
+                //Retransmit the good package
                 sendRetransmissionRequest(portSource, IPsource, ack + 1);
             } else {
+                //Send the good packet
                 ack++;
                 packets.add(data);
                 packetLength += data.length;
                 sendAcknowledgement(portSource, IPsource, ack);
                 if (packetNum == packetQuantityNum) {
+                    //Send the Data to Application Layer
                     upwardLayer.receive(portSource, IPsource, reconstructData());
                     //On vide, prêt à commencer une nouvelle transmission
                     packets.clear();

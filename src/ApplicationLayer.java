@@ -28,9 +28,9 @@ public class ApplicationLayer implements LayersCommunication {
      * par le programmme client en un adress d'un buffer dans
      * la couche inférieur(couche transport)
      *
-     * @param portDestinataire
-     * @param IPdestinataire
-     * @param buf
+     * @param portDestinataire numéro du port du destinataire
+     * @param IPdestinataire l'adress ip du destinataire
+     * @param buf les donné transmie par le programe client
      * @throws IOException
      */
 
@@ -65,19 +65,24 @@ public class ApplicationLayer implements LayersCommunication {
      * par la couche inférieur (couche transport) et cette fonction a pour
      * bus d'écrire les données reçu.
      *
-     * @param portSource
-     * @param IPsource
-     * @param buf
+     * @param portSource numéro du port de la source
+     * @param IPsource l'adress Ip de la source
+     * @param buf les données transmie par lacouche transprt
      */
 
     @Override
     public void receive(int portSource, byte[] IPsource,byte[] buf) {
         System.out.println("Receive app");
+
+        // Split the byte arrays to get name and the data
         byte[] fileName = getFileName(buf);
         byte[] fileData = getData(buf);
+
+        // Change byte in string
         String name = new String(fileName);
         String data = new String(fileData);
 
+        // Write a file
         try {
             File file = new File("data",name);
             // if file doesnt exists, then create it
@@ -103,16 +108,19 @@ public class ApplicationLayer implements LayersCommunication {
 
 
     private static int getFileNameLength(byte[] buf){
+        // Return the lenght of the Name
         return Byte.valueOf(buf[0]).intValue();
     }
 
     private static byte[] getFileName(byte[] buf){
         int fileNameLength = getFileNameLength(buf);
+        // Return the name of the file
         return Arrays.copyOfRange(buf,1,1+fileNameLength);
     }
 
     private static byte[] getData(byte[] buf) {
         int fileNameLength = getFileNameLength(buf);
+        // Return the data of the file
         return Arrays.copyOfRange(buf,1+fileNameLength,buf.length);
     }
 
