@@ -124,7 +124,7 @@ public class LinkLayer implements LayersCommunication {
     public void setTimerOn(boolean timerOn) {
         try {
             if (timerOn) {
-                socket.setSoTimeout(20);
+                socket.setSoTimeout(5000);
             } else {
                 socket.setSoTimeout(0);
             }

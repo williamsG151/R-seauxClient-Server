@@ -52,7 +52,7 @@ public class TransportLayer implements LayersCommunication {
 
 
 
-        int quantity = (int) (Math.ceil(buf.length/MAX_PACKET_SIZE)+1);
+        int quantity = (int) (Math.ceil(buf.length/MAX_PACKET_SIZE));
 
         byte[] packetQuantity = numberToString(quantity, PACKET_NUMBER_SIZE).getBytes();
         byte[] header, body, allBytes;
@@ -67,7 +67,7 @@ public class TransportLayer implements LayersCommunication {
             byteBuffer.put(packetNumber).put(packetQuantity);
 
             //Création du body
-            if (i==quantity){
+            if (i==quantity-1){
                 body = Arrays.copyOfRange(buf,i*MAX_PACKET_SIZE, buf.length);
             }else{
                 body = Arrays.copyOfRange(buf,i*MAX_PACKET_SIZE, i*MAX_PACKET_SIZE+MAX_PACKET_SIZE);
