@@ -35,7 +35,7 @@ public class ApplicationLayer implements LayersCommunication {
      */
 
     @Override
-    public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException {
+    public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException, TransmissionErrorException {
 
         //On convertie le tableau de byte en string
         String filePath = new String(buf);
@@ -72,7 +72,6 @@ public class ApplicationLayer implements LayersCommunication {
 
     @Override
     public void receive(int portSource, byte[] IPsource,byte[] buf) {
-        System.out.println("Receive app");
 
         // Split the byte arrays to get name and the data
         byte[] fileName = getFileName(buf);
@@ -102,7 +101,7 @@ public class ApplicationLayer implements LayersCommunication {
     }
 
     @Override
-    public void listen() throws IOException {
+    public void listen() throws IOException, TransmissionErrorException {
         downLayer.listen();
     }
 

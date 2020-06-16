@@ -35,6 +35,7 @@ public class LinkLayer implements LayersCommunication {
         errorGeneratorActivated=withErrorGenerator;
         try {
             socket = new DatagramSocket(myPort);
+            logger.setUseParentHandlers(false); //Disable log output in console
             fileHandler = new FileHandler("liasonDeDonnes.log",true);
             logger.addHandler(fileHandler);
             SimpleFormatter formatter = new SimpleFormatter();
@@ -97,8 +98,7 @@ public class LinkLayer implements LayersCommunication {
      */
 
     @Override
-    public void receive(int portSource, byte[] IPsource, byte[] buf) throws IOException {
-        System.out.println("Receive link");
+    public void receive(int portSource, byte[] IPsource, byte[] buf) throws IOException, TransmissionErrorException {
         receivedFiles++;
         byte crcByte = buf[0];
         byte[] data = Arrays.copyOfRange(buf, HEADER_LENGTH, buf.length);
@@ -110,7 +110,9 @@ public class LinkLayer implements LayersCommunication {
         // check if the packet is not corrupt
         if (crc == crcByte) {
             logger.log(Level.INFO,"Packet reçu du port " + portSource);
-            upwardLayer.receive(portSource, IPsource, data);
+
+                upwardLayer.receive(portSource, IPsource, data);
+
         } else {
             logger.log(Level.INFO,"Packet corrumpu reçu du port " + portSource);
             //System.out.println("Ce packet est vrm pas cool");
@@ -132,7 +134,7 @@ public class LinkLayer implements LayersCommunication {
     }
 
     @Override
-    public void listen() throws IOException {
+    public void listen() throws IOException, TransmissionErrorException {
         byte[] buf = new byte[1500];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         try {
@@ -140,7 +142,6 @@ public class LinkLayer implements LayersCommunication {
             receive(packet.getPort(), packet.getAddress().getAddress(), Arrays.copyOfRange(packet.getData(), 0, packet.getLength()));
         } catch (SocketTimeoutException e) {
             logger.log(Level.INFO,"SocketTimeout");
-            //System.out.println("réponse non reçu à temps");
             lostedFiles++;
         }
 

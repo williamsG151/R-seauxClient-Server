@@ -8,8 +8,8 @@ import java.io.IOException;
 
 public interface LayersCommunication {
 
-   void send(int portDestinataire, byte[] IPdestinataire, byte[] buf) throws IOException;
-    void receive(int portSource, byte[] IPsource, byte[] buf) throws IOException;
-    void listen() throws IOException;
+   void send(int portDestinataire, byte[] IPdestinataire, byte[] buf) throws IOException, TransmissionErrorException;
+    void receive(int portSource, byte[] IPsource, byte[] buf) throws IOException, TransmissionErrorException;
+    void listen() throws IOException, TransmissionErrorException;
 
 }

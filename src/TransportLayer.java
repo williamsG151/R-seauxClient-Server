@@ -27,6 +27,10 @@ public class TransportLayer implements LayersCommunication {
     private int packetLength = 0;
     private static final String RETRANSMISSION = "NOT COOL:(";
     private static final String ACKNOWLEDGEMENT = "COOOOOL!:)";
+    private static final String TRANSMISSION_ERROR = "TRANSERROR";
+    private static final int MESSAGE_TYPE_LENGTH = 10;
+
+    private int transmissionErrorCounter = 0;
 
 
     public TransportLayer(int myPort,boolean withErrorGenerator, LayersCommunication upwardLayer) {
@@ -44,7 +48,7 @@ public class TransportLayer implements LayersCommunication {
      */
 
     @Override
-    public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException {
+    public void send(int portDestinataire,byte[] IPdestinataire,byte[] buf) throws IOException, TransmissionErrorException {
 
 
 
@@ -95,17 +99,18 @@ public class TransportLayer implements LayersCommunication {
      */
 
     @Override
-    public void receive(int portSource, byte[] IPsource,byte[] buf) throws IOException {
-        System.out.println("Receive trans");
+    public void receive(int portSource, byte[] IPsource,byte[] buf) throws IOException, TransmissionErrorException {
             if(buf.length==HEADER_LENGTH){
                 //accusé
-                byte[] messageType = Arrays.copyOfRange(buf,0,HEADER_LENGTH-PACKET_NUMBER_SIZE);
-                byte[] packetNumber = Arrays.copyOfRange(buf,HEADER_LENGTH-PACKET_NUMBER_SIZE,buf.length);
+                byte[] messageType = Arrays.copyOfRange(buf,0,MESSAGE_TYPE_LENGTH);
+                byte[] packetNumber = Arrays.copyOfRange(buf,buf.length-PACKET_NUMBER_SIZE,buf.length);
                 if ((new String(messageType)).equals(RETRANSMISSION)){
                     //Retransmit
                     retransmit( portSource,  IPsource, Integer.parseInt(new String(packetNumber)) );
                 }else if ((new String(messageType)).equals(ACKNOWLEDGEMENT)){
                     acknowledgementReceived(Integer.parseInt(new String(packetNumber)));
+                }else if ((new String(messageType).equals(TRANSMISSION_ERROR))){
+                    throw (new TransmissionErrorException());
                 }
             }else{
                 receiveData( portSource, IPsource, buf);
@@ -117,9 +122,10 @@ public class TransportLayer implements LayersCommunication {
             //End of transfer
         }
     }
-    private void retransmit(int destinationPort, byte[] IPDestination, int packetNumber) throws IOException {
+    private void retransmit(int destinationPort, byte[] IPDestination, int packetNumber) throws IOException, TransmissionErrorException {
         // Send the paquet that have been requested
         byte[] packet=packets.get(packetNumber-1);
+        //Adjust the ack #
         ack = packetNumber-1;
         downLayer.send(destinationPort, IPDestination, packet);
         downLayer.setTimerOn(true);
@@ -135,20 +141,23 @@ public class TransportLayer implements LayersCommunication {
      * @param IPsource it is a byte array that pass the ip adress of the source
      * @param buf It is a byte arrays that contain the packet send from Link Layer
      */
-    private void receiveData(int portSource, byte[] IPsource,byte[] buf) throws IOException {
-        System.out.println("Receive data");
+    private void receiveData(int portSource, byte[] IPsource,byte[] buf) throws IOException, TransmissionErrorException {
         byte[] data = Arrays.copyOfRange(buf,HEADER_LENGTH, buf.length);
         byte[] packetNumber = Arrays.copyOfRange(buf,0,PACKET_NUMBER_SIZE);
         byte[] packetQuantity = Arrays.copyOfRange(buf,PACKET_NUMBER_SIZE,2*PACKET_NUMBER_SIZE);
 
             int packetNum = Integer.valueOf(new String(packetNumber));
             int packetQuantityNum = Integer.valueOf(new String(packetQuantity));
-            // check if the packet send is the one expected
+            // check if the packet received is the one expected
             if (packetNum != ack + 1) {
-                //Retransmit the good package
-                sendRetransmissionRequest(portSource, IPsource, ack + 1);
+                if(++transmissionErrorCounter==3){ //End connection
+                    sendEndOfTransmission(portSource,IPsource);
+                    reset();
+                }else { //Ask for the retransmission of the good package
+                    sendRetransmissionRequest(portSource, IPsource, ack + 1);
+                }
             } else {
-                //Send the good packet
+                //Stock the good packet
                 ack++;
                 packets.add(data);
                 packetLength += data.length;
@@ -156,16 +165,26 @@ public class TransportLayer implements LayersCommunication {
                 if (packetNum == packetQuantityNum) {
                     //Send the Data to Application Layer
                     upwardLayer.receive(portSource, IPsource, reconstructData());
-                    //On vide, prêt à commencer une nouvelle transmission
-                    packets.clear();
-                    packetLength = 0;
-                    ack = 0;
+                    //On reset, prêt à commencer une nouvelle transmission
+                    reset();
                 }
             }
     }
 
+    private void sendEndOfTransmission(int portDestination, byte[] IPDestination) throws IOException {
+        //Pad the error code so it has the header length
+        String message = String.format("%-" + HEADER_LENGTH + "s", TRANSMISSION_ERROR);
+        downLayer.send(portDestination,IPDestination,message.getBytes());
+    }
+
+    private void reset() {
+        packets.clear();
+        packetLength = 0;
+        ack = 0;
+        transmissionErrorCounter=0;
+    }
+
     private void sendAcknowledgement(int portSource, byte[] IPsource, int ack) throws IOException {
-        //Format: "ACK:)#####"
         byte[] buf = new byte[HEADER_LENGTH];
         ByteBuffer bf = ByteBuffer.wrap(buf);
         bf.put(ACKNOWLEDGEMENT.getBytes()).put(numberToString(ack,PACKET_NUMBER_SIZE).getBytes());
@@ -173,7 +192,6 @@ public class TransportLayer implements LayersCommunication {
     }
 
     private void sendRetransmissionRequest(int portSource, byte[] IPsource,int packetNumber) throws IOException {
-        //Format: "NACK:#####"
         byte[] buf = new byte[HEADER_LENGTH];
         ByteBuffer bf = ByteBuffer.wrap(buf);
         bf.put(RETRANSMISSION.getBytes()).put(numberToString(packetNumber,PACKET_NUMBER_SIZE).getBytes());
@@ -208,7 +226,7 @@ public class TransportLayer implements LayersCommunication {
     }
 
     @Override
-    public void listen() throws IOException {
+    public void listen() throws IOException, TransmissionErrorException {
 
         downLayer.listen();
     }
