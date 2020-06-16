@@ -17,6 +17,7 @@ import java.util.*;
  */
 
 public class ApplicationLayer implements LayersCommunication {
+    private static final String DIRECTORY_NAME = "data";
     LayersCommunication downLayer;
 
     public ApplicationLayer(int myPort, boolean withErrorGenerator) {
@@ -79,11 +80,12 @@ public class ApplicationLayer implements LayersCommunication {
 
         // Change byte in string
         String name = new String(fileName);
-        String data = new String(fileData);
 
         // Write a file
         try {
-            File file = new File("data",name);
+            //create the specified server directory if it does not exist
+            new File(DIRECTORY_NAME).mkdirs();
+            File file = new File(DIRECTORY_NAME,name);
             // if file doesnt exists, then create it
             file.createNewFile();
 
