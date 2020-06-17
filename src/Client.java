@@ -4,6 +4,9 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/**
+ * Programme client
+ */
 public class Client {
 
     private static final int SERVER_PORT = 25001;
