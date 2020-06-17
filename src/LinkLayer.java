@@ -11,12 +11,12 @@ import java.util.zip.CRC32;
 
 /**
  * cette couche permet de transmettre et de recevoir des paquet
- * vers/du socket de Berkeley
+ * vers/du socket de Berkeley et de valider que ceux ci arrive en bon état
  */
 
 public class LinkLayer implements LayersCommunication {
 
-    LayersCommunication upwardLayer;
+    private LayersCommunication upwardLayer;
     private static final int HEADER_LENGTH = 1;
 
     private DatagramSocket socket = null;
@@ -27,7 +27,7 @@ public class LinkLayer implements LayersCommunication {
     private final boolean errorGeneratorActivated;
     private final Random r = new Random();
     private final Logger logger = Logger.getLogger("Log");
-    FileHandler fileHandler;
+    private FileHandler fileHandler;
 
 
     public LinkLayer(int myPort, boolean withErrorGenerator, LayersCommunication upwardLayer) {
@@ -56,7 +56,6 @@ public class LinkLayer implements LayersCommunication {
      * @param buf les pacquet envoyer par la couche transport
      * @throws IOException
      */
-
 
     @Override
     public void send(int portDestinataire, byte[] IPadress, byte[] buf) throws IOException {
@@ -121,10 +120,14 @@ public class LinkLayer implements LayersCommunication {
         }
     }
 
+    /**
+     * Permet d'activer/désactiver un délais d'écoute
+     * @param timerOn true si on veut activer le timer, false sinon
+     */
     public void setTimerOn(boolean timerOn) {
         try {
             if (timerOn) {
-                socket.setSoTimeout(5000);
+                socket.setSoTimeout(1000);
             } else {
                 socket.setSoTimeout(0);
             }

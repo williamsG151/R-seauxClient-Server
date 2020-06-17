@@ -62,13 +62,13 @@ public class ApplicationLayer implements LayersCommunication {
     }
 
     /**
-     * Cette fonction receoit un arrays de byte qui est transmie
+     * Cette fonction recoit un arrays de byte qui est transmit
      * par la couche inférieur (couche transport) et cette fonction a pour
-     * bus d'écrire les données reçu.
+     * but d'écrire les données reçu.
      *
      * @param portSource numéro du port de la source
      * @param IPsource l'adress Ip de la source
-     * @param buf les données transmie par lacouche transprt
+     * @param buf les données transmises par la couche transport
      */
 
     @Override

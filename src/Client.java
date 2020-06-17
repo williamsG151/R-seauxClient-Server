@@ -12,6 +12,8 @@ public class Client {
     /**
      * Cette fonction permet de faire un programme client qui
      * envoye un fichier a la couche application
+     * @param args le premier argument est un boolean permettant de specifier si on veut générer des erreurs de transfert des paquets
+     * @throws IOException
      */
     public static void main(String[] args) throws IOException {
         boolean generateError = false;
